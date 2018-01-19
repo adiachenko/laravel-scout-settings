@@ -24,6 +24,29 @@ class AlgoliaCommand extends Command
         }
     }
 
+    protected function getFullFileName($indexName, $type)
+    {
+        $filename = $this->path.$this->removePrefix($indexName);
+
+        if ('settings' !== $type) {
+            $filename .= '-'.$type;
+        }
+
+        return $filename.'.json';
+    }
+
+    protected function removePrefix($fullIndexName)
+    {
+        if ($this->option('prefix')) {
+            return $fullIndexName;
+        }
+
+        $prefix = config('scout.prefix');
+        $withoutPrefix = preg_replace('/^'.preg_quote($prefix, '/').'/', '', $fullIndexName);
+
+        return $withoutPrefix;
+    }
+
     protected function getIndex($indexName)
     {
         AlgoliaUserAgent::addSuffixUserAgentSegment('; Laravel Scout settings package', '1.0.0');

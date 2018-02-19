@@ -11,7 +11,7 @@ class BackupCommand extends AlgoliaCommand
      *
      * @var string
      */
-    protected $signature = 'algolia:settings:backup {model}';
+    protected $signature = 'algolia:settings:backup {model} {--prefix}';
 
     /**
      * The console command description.
@@ -62,7 +62,7 @@ class BackupCommand extends AlgoliaCommand
 
     protected function saveSettings($indexName)
     {
-        $filename = $this->path.$indexName.'.json';
+        $filename = $this->getFullFileName($indexName, 'settings');
         $settings = $this->getIndex($indexName)->getSettings();
 
         $child = true;
@@ -86,8 +86,8 @@ class BackupCommand extends AlgoliaCommand
 
     protected function saveSynonyms($indexName)
     {
-        $filename = $this->path.$indexName.'-synonyms.json';
         $synonymIterator = $this->getIndex($indexName)->initSynonymIterator();
+        $filename = $this->getFullFileName($indexName, 'synonyms');
         $synonyms = [];
 
         foreach ($synonymIterator as $synonym) {

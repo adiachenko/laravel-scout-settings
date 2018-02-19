@@ -12,7 +12,7 @@ class PushCommand extends AlgoliaCommand
      *
      * @var string
      */
-    protected $signature = 'algolia:settings:push {model}';
+    protected $signature = 'algolia:settings:push {model} {--prefix}';
 
     /**
      * The console command description.
@@ -52,8 +52,9 @@ class PushCommand extends AlgoliaCommand
     protected function pushSettings($indexName)
     {
         $index = $this->getIndex($indexName);
+        $filename = $this->getFullFileName($indexName, 'settings');
 
-        $settings = Json::decode(File::get($this->path.$indexName.'.json'), true);
+        $settings = Json::decode(File::get($filename), true);
 
         if (isset($settings['replicas'])) {
             foreach ($settings['replicas'] as $replica) {
@@ -69,12 +70,13 @@ class PushCommand extends AlgoliaCommand
     protected function pushSynonyms($indexName)
     {
         $index = $this->getIndex($indexName);
+        $filename = $this->getFullFileName($indexName, 'synonyms');
 
         // Clear all synonyms from the index
         $task = $index->clearSynonyms(true);
         $index->waitTask($task['taskID']);
 
-        $synonyms = Json::decode(File::get($this->path.$indexName.'-synonyms.json'), true);
+        $synonyms = Json::decode(File::get($filename), true);
 
         foreach (array_chunk($synonyms, 1000) as $batch) {
             $index->batchSynonyms($batch, true, true);
@@ -86,12 +88,13 @@ class PushCommand extends AlgoliaCommand
     protected function pushRules($indexName)
     {
         $index = $this->getIndex($indexName);
+        $filename = $this->getFullFileName($indexName, 'rules');
 
         // Clear all rules from the index
         $task = $index->clearRules(true);
         $index->waitTask($task['taskID']);
 
-        $rules = Json::decode(File::get($this->path.$indexName.'-rules.json'), true);
+        $rules = Json::decode(File::get($filename), true);
 
         foreach (array_chunk($rules, 1000) as $batch) {
             $index->batchRules($batch, true, true);
